@@ -1,0 +1,50 @@
+[project]
+name = "log_analyzer"
+version = "0.1.0"
+description = "Nginx log analyzer for OTUS Python Professional course"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "structlog>=24.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.8.0",
+    "flake8>=6.0.0",
+	"pre-commit>=3.0.0",
+]
+
+[project.scripts]
+log-analyzer = "log_analyzer.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "I", "N"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+addopts = "--cov=src/log_analyzer --cov-report=html --cov-report=term-missing"
