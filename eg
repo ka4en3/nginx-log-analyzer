@@ -1,0 +1,489 @@
+[33mcommit 3548bebdb38b74f607351c0b74a25613a1c0c200[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: ka4en3 <ka4en3@gmail.com>
+Date:   Thu Jul 17 22:27:11 2025 +0200
+
+    Initial commit: nginx_log_analyzer
+
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mnew file mode 100644[m
+[1mindex 0000000..ead9290[m
+[1m--- /dev/null[m
+[1m+++ b/.gitignore[m
+[36m@@ -0,0 +1,50 @@[m
+[32m+[m[32m# Python[m
+[32m+[m[32m__pycache__/[m
+[32m+[m[32m*.py[cod][m
+[32m+[m[32m*$py.class[m
+[32m+[m[32m*.so[m
+[32m+[m[32m.Python[m
+[32m+[m[32mbuild/[m
+[32m+[m[32mdevelop-eggs/[m
+[32m+[m[32mdist/[m
+[32m+[m[32mdownloads/[m
+[32m+[m[32meggs/[m
+[32m+[m[32m.eggs/[m
+[32m+[m[32mlib/[m
+[32m+[m[32mlib64/[m
+[32m+[m[32mparts/[m
+[32m+[m[32msdist/[m
+[32m+[m[32mvar/[m
+[32m+[m[32mwheels/[m
+[32m+[m[32m*.egg-info/[m
+[32m+[m[32m.installed.cfg[m
+[32m+[m[32m*.egg[m
+[32m+[m
+[32m+[m[32m# Virtual Environment[m
+[32m+[m[32m.venv/[m
+[32m+[m[32mvenv/[m
+[32m+[m[32mENV/[m
+[32m+[m[32menv/[m
+[32m+[m
+[32m+[m[32m# IDE[m
+[32m+[m[32m.idea/[m
+[32m+[m[32m.vscode/[m
+[32m+[m[32m*.swp[m
+[32m+[m[32m*.swo[m
+[32m+[m
+[32m+[m[32m# Testing[m
+[32m+[m[32m.coverage[m
+[32m+[m[32mhtmlcov/[m
+[32m+[m[32m.pytest_cache/[m
+[32m+[m[32m.mypy_cache/[m
+[32m+[m
+[32m+[m[32m# Logs[m
+[32m+[m[32m*.log[m
+[32m+[m[32mlogs/*.log*[m
+[32m+[m
+[32m+[m[32m# Reports[m
+[32m+[m[32mreports/*.html[m
+[32m+[m
+[32m+[m[32m# OS[m
+[32m+[m[32m.DS_Store[m
+[32m+[m[32mThumbs.db[m
+[1mdiff --git a/.pre-commit-config.yaml b/.pre-commit-config.yaml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3193cb0[m
+[1m--- /dev/null[m
+[1m+++ b/.pre-commit-config.yaml[m
+[36m@@ -0,0 +1,32 @@[m
+[32m+[m[32mrepos:[m
+[32m+[m[32m  - repo: https://github.com/pre-commit/pre-commit-hooks[m
+[32m+[m[32m    rev: v4.5.0[m
+[32m+[m[32m    hooks:[m
+[32m+[m[32m      - id: trailing-whitespace[m
+[32m+[m[32m      - id: end-of-file-fixer[m
+[32m+[m[32m      - id: check-yaml[m
+[32m+[m[32m      - id: check-json[m
+[32m+[m
+[32m+[m[32m  - repo: https://github.com/psf/black[m
+[32m+[m[32m    rev: 23.12.1[m
+[32m+[m[32m    hooks:[m
+[32m+[m[32m      - id: black[m
+[32m+[m
+[32m+[m[32m  - repo: https://github.com/pycqa/isort[m
+[32m+[m[32m    rev: 5.13.2[m
+[32m+[m[32m    hooks:[m
+[32m+[m[32m      - id: isort[m
+[32m+[m[32m        args: ["--profile", "black"][m
+[32m+[m
+[32m+[m[32m  - repo: https://github.com/pycqa/flake8[m
+[32m+[m[32m    rev: 7.0.0[m
+[32m+[m[32m    hooks:[m
+[32m+[m[32m      - id: flake8[m
+[32m+[m[32m        args: ["--max-line-length=88", "--extend-ignore=E203"][m
+[32m+[m
+[32m+[m[32m  - repo: https://github.com/pre-commit/mirrors-mypy[m
+[32m+[m[32m    rev: v1.8.0[m
+[32m+[m[32m    hooks:[m
+[32m+[m[32m      - id: mypy[m
+[32m+[m[32m        # additional_dependencies: [types-all][m
+[32m+[m[32m        args: ["--ignore-missing-imports"][m
+[1mdiff --git a/.python-version b/.python-version[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e4fba21[m
+[1m--- /dev/null[m
+[1m+++ b/.python-version[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32m3.12[m
+[1mdiff --git a/README.md b/README.md[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e69de29[m
+[1mdiff --git a/config.json b/config.json[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f5f5252[m
+[1m--- /dev/null[m
+[1m+++ b/config.json[m
+[36m@@ -0,0 +1,7 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m    "REPORT_SIZE": 1000,[m
+[32m+[m[32m    "REPORT_DIR": "./reports",[m
+[32m+[m[32m    "LOG_DIR": "./logs",[m
+[32m+[m[32m    "LOG_FILE": null,[m
+[32m+[m[32m    "ERROR_THRESHOLD": 0.1[m
+[32m+[m[32m}[m
+[1mdiff --git a/pyproject.toml b/pyproject.toml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3c6463c[m
+[1m--- /dev/null[m
+[1m+++ b/pyproject.toml[m
+[36m@@ -0,0 +1,50 @@[m
+[32m+[m[32m[project][m
+[32m+[m[32mname = "log_analyzer"[m
+[32m+[m[32mversion = "0.1.0"[m
+[32m+[m[32mdescription = "Nginx log analyzer for OTUS Python Professional course"[m
+[32m+[m[32mreadme = "README.md"[m
+[32m+[m[32mrequires-python = ">=3.8"[m
+[32m+[m[32mdependencies = [[m
+[32m+[m[32m    "structlog>=24.1.0",[m
+[32m+[m[32m][m
+[32m+[m
+[32m+[m[32m[project.optional-dependencies][m
+[32m+[m[32mdev = [[m
+[32m+[m[32m    "pytest>=8.0.0",[m
+[32m+[m[32m    "pytest-cov>=4.1.0",[m
+[32m+[m[32m    "black>=24.0.0",[m
+[32m+[m[32m    "isort>=5.13.0",[m
+[32m+[m[32m    "mypy>=1.8.0",[m
+[32m+[m[32m    "flake8>=6.0.0",[m
+[32m+[m	[32m"pre-commit>=3.0.0",[m
+[32m+[m[32m][m
+[32m+[m
+[32m+[m[32m[project.scripts][m
+[32m+[m[32mlog-analyzer = "log_analyzer.__main__:main"[m
+[32m+[m
+[32m+[m[32m[build-system][m
+[32m+[m[32mrequires = ["hatchling"][m
+[32m+[m[32mbuild-backend = "hatchling.build"[m
+[32m+[m
+[32m+[m[32m[tool.black][m
+[32m+[m[32mline-length = 88[m
+[32m+[m[32mtarget-version = ['py38'][m
+[32m+[m
+[32m+[m[32m[tool.isort][m
+[32m+[m[32mprofile = "black"[m
+[32m+[m[32mline_length = 88[m
+[32m+[m
+[32m+[m[32m[tool.mypy][m
+[32m+[m[32mpython_version = "3.8"[m
+[32m+[m[32mwarn_return_any = true[m
+[32m+[m[32mwarn_unused_configs = true[m
+[32m+[m[32mdisallow_untyped_defs = true[m
+[32m+[m
+[32m+[m[32m[tool.ruff][m
+[32m+[m[32mline-length = 88[m
+[32m+[m[32mselect = ["E", "F", "W", "I", "N"][m
+[32m+[m
+[32m+[m[32m[tool.pytest.ini_options][m
+[32m+[m[32mtestpaths = ["tests"][m
+[32m+[m[32mpython_files = "test_*.py"[m
+[32m+[m[32maddopts = "--cov=src/log_analyzer --cov-report=html --cov-report=term-missing"[m
+[1mdiff --git a/src/log_analyzer/__init__.py b/src/log_analyzer/__init__.py[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e69de29[m
+[1mdiff --git a/src/log_analyzer/log_analyzer.py b/src/log_analyzer/log_analyzer.py[m
+[1mnew file mode 100644[m
+[1mindex 0000000..d46258b[m
+[1m--- /dev/null[m
+[1m+++ b/src/log_analyzer/log_analyzer.py[m
+[36m@@ -0,0 +1,342 @@[m
+[32m+[m[32m#!/usr/bin/env python[m
+[32m+[m[32m# -*- coding: utf-8 -*-[m
+[32m+[m
+[32m+[m[32mimport argparse[m
+[32m+[m[32mimport gzip[m
+[32m+[m[32mimport json[m
+[32m+[m[32mimport logging[m
+[32m+[m[32mimport os[m
+[32m+[m[32mimport re[m
+[32m+[m[32mimport statistics[m
+[32m+[m[32mimport sys[m
+[32m+[m[32mfrom collections import defaultdict, namedtuple[m
+[32m+[m[32mfrom datetime import datetime[m
+[32m+[m[32mfrom pathlib import Path[m
+[32m+[m[32mfrom string import Template[m
+[32m+[m[32mfrom typing import Dict, Iterator, List, Optional, Tuple, Union[m
+[32m+[m
+[32m+[m[32mimport structlog[m
+[32m+[m
+[32m+[m[32m# Настройка дефолтного конфига[m
+[32m+[m[32mdefault_config = {[m
+[32m+[m[32m    "REPORT_SIZE": 1000,[m
+[32m+[m[32m    "REPORT_DIR": "./reports",[m
+[32m+[m[32m    "LOG_DIR": "./logs",[m
+[32m+[m[32m    "LOG_FILE": None,[m
+[32m+[m[32m    "ERROR_THRESHOLD": 0.1,  # 10% ошибок[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m# Структура для информации о файле лога[m
+[32m+[m[32mLogFileInfo = namedtuple("LogFileInfo", ["path", "date", "extension"])[m
+[32m+[m
+[32m+[m[32m# Паттерн для парсинга логов ui_short[m
+[32m+[m[32mLOG_PATTERN = re.compile([m
+[32m+[m[32m    r"(?P<remote_addr>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) "[m
+[32m+[m[32m    r"(?P<remote_user>\S+) +(?P<http_x_real_ip>\S+) +\[(?P<time_local>[^\]]+)\] "[m
+[32m+[m[32m    r'"(?P<request>[^"]*)" '[m
+[32m+[m[32m    r"(?P<status>\d{3}) "[m
+[32m+[m[32m    r"(?P<body_bytes_sent>\d+) "[m
+[32m+[m[32m    r'"(?P<http_referer>[^"]*)" '[m
+[32m+[m[32m    r'"(?P<http_user_agent>[^"]*)" '[m
+[32m+[m[32m    r'"(?P<http_x_forwarded_for>[^"]*)" '[m
+[32m+[m[32m    r'"(?P<http_X_REQUEST_ID>[^"]*)" '[m
+[32m+[m[32m    r'"(?P<http_X_RB_USER>[^"]*)" '[m
+[32m+[m[32m    r"(?P<request_time>\d+\.\d+)"[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32m# Паттерн для поиска файлов логов[m
+[32m+[m[32mLOG_FILE_PATTERN = re.compile(r"nginx-access-ui\.log-(\d{8})(\.gz)?$")[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef setup_logging(log_file: Optional[str] = None) -> None:[m
+[32m+[m[32m    """Настройка структурированного логирования"""[m
+[32m+[m
+[32m+[m[32m    processors = [[m
+[32m+[m[32m        structlog.stdlib.filter_by_level,[m
+[32m+[m[32m        structlog.stdlib.add_logger_name,[m
+[32m+[m[32m        structlog.stdlib.add_log_level,[m
+[32m+[m[32m        structlog.stdlib.PositionalArgumentsFormatter(),[m
+[32m+[m[32m        structlog.processors.TimeStamper(fmt="iso"),[m
+[32m+[m[32m        structlog.processors.StackInfoRenderer(),[m
+[32m+[m[32m        structlog.processors.format_exc_info,[m
+[32m+[m[32m        structlog.processors.JSONRenderer(),[m
+[32m+[m[32m    ][m
+[32m+[m
+[32m+[m[32m    structlog.configure([m
+[32m+[m[32m        processors=processors,[m
+[32m+[m[32m        context_class=dict,[m
+[32m+[m[32m        logger_factory=structlog.stdlib.LoggerFactory(),[m
+[32m+[m[32m        cache_logger_on_first_use=True,[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    # Настройка стандартного логгера[m
+[32m+[m[32m    if log_file:[m
+[32m+[m[32m        logging.basicConfig(filename=log_file, level=logging.INFO, format="%(message)s")[m
+[32m+[m[32m    else:[m
+[32m+[m[32m        logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef load_config(config_path: str) -> Dict:[m
+[32m+[m[32m    """Загрузка и слияние конфигурации"""[m
+[32m+[m[32m    config = default_config.copy()[m
+[32m+[m
+[32m+[m[32m    if not os.path.exists(config_path):[m
+[32m+[m[32m        raise FileNotFoundError(f"Config file not found: {config_path}")[m
+[32m+[m
+[32m+[m[32m    try:[m
+[32m+[m[32m        with open(config_path, "r", encoding="utf-8") as f:[m
+[32m+[m[32m            file_config = json.load(f)[m
+[32m+[m[32m            config.update(file_config)[m
+[32m+[m[32m    except json.JSONDecodeError as e:[m
+[32m+[m[32m        raise ValueError(f"Invalid JSON in config file: {e}")[m
+[32m+[m
+[32m+[m[32m    return config[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef find_latest_log(log_dir: str) -> Optional[LogFileInfo]:[m
+[32m+[m[32m    """Поиск последнего лога по дате в имени файла"""[m
+[32m+[m[32m    if not os.path.exists(log_dir):[m
+[32m+[m[32m        return None[m
+[32m+[m
+[32m+[m[32m    latest_log = None[m
+[32m+[m[32m    latest_date = None[m
+[32m+[m
+[32m+[m[32m    for filename in os.listdir(log_dir):[m
+[32m+[m[32m        match = LOG_FILE_PATTERN.match(filename)[m
+[32m+[m[32m        if match:[m
+[32m+[m[32m            date_str = match.group(1)[m
+[32m+[m[32m            try:[m
+[32m+[m[32m                log_date = datetime.strptime(date_str, "%Y%m%d")[m
+[32m+[m[32m                if latest_date is None or log_date > latest_date:[m
+[32m+[m[32m                    latest_date = log_date[m
+[32m+[m[32m                    extension = match.group(2) or ""[m
+[32m+[m[32m                    latest_log = LogFileInfo([m
+[32m+[m[32m                        path=os.path.join(log_dir, filename),[m
+[32m+[m[32m                        date=log_date,[m
+[32m+[m[32m                        extension=extension,[m
+[32m+[m[32m                    )[m
+[32m+[m[32m            except ValueError:[m
+[32m+[m[32m                continue[m
+[32m+[m
+[32m+[m[32m    return latest_log[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef parse_log_line(line: str) -> Optional[Dict]:[m
+[32m+[m[32m    """Парсинг одной строки лога"""[m
+[32m+[m[32m    match = LOG_PATTERN.match(line.strip())[m
+[32m+[m[32m    if not match:[m
+[32m+[m[32m        return None[m
+[32m+[m
+[32m+[m[32m    data = match.groupdict()[m
+[32m+[m
+[32m+[m[32m    # Извлекаем URL из request[m
+[32m+[m[32m    request_parts = data["request"].split()[m
+[32m+[m[32m    if len(request_parts) >= 2:[m
+[32m+[m[32m        url = request_parts[1][m
+[32m+[m[32m    else:[m
+[32m+[m[32m        url = data["request"][m
+[32m+[m
+[32m+[m[32m    return {"url": url, "request_time": float(data["request_time"])}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef parse_log_file(file_path: str, error_threshold: float) -> Iterator[Dict]:[m
+[32m+[m[32m    """Генератор для парсинга файла логов"""[m
+[32m+[m[32m    logger = structlog.get_logger()[m
+[32m+[m
+[32m+[m[32m    # Выбираем способ открытия файла[m
+[32m+[m[32m    if file_path.endswith(".gz"):[m
+[32m+[m[32m        file_opener = gzip.open[m
+[32m+[m[32m        mode = "rt"[m
+[32m+[m[32m    else:[m
+[32m+[m[32m        file_opener = open[m
+[32m+[m[32m        mode = "r"[m
+[32m+[m
+[32m+[m[32m    total_lines = 0[m
+[32m+[m[32m    error_lines = 0[m
+[32m+[m
+[32m+[m[32m    try:[m
+[32m+[m[32m        with file_opener(file_path, mode, encoding="utf-8") as f:[m
+[32m+[m[32m            for line in f:[m
+[32m+[m[32m                total_lines += 1[m
+[32m+[m[32m                parsed = parse_log_line(line)[m
+[32m+[m
+[32m+[m[32m                if parsed:[m
+[32m+[m[32m                    yield parsed[m
+[32m+[m[32m                else:[m
+[32m+[m[32m                    error_lines += 1[m
+[32m+[m
+[32m+[m[32m                # Периодическое логирование прогресса[m
+[32m+[m[32m                if total_lines % 100000 == 0:[m
+[32m+[m[32m                    logger.info([m
+[32m+[m[32m                        "parse_progress",[m
+[32m+[m[32m                        total_lines=total_lines,[m
+[32m+[m[32m                        error_lines=error_lines,[m
+[32m+[m[32m                    )[m
+[32m+[m
+[32m+[m[32m    except Exception as e:[m
+[32m+[m[32m        logger.error("parse_error", error=str(e), file=file_path)[m
+[32m+[m[32m        raise[m
+[32m+[m
+[32m+[m[32m    # Проверка порога ошибок[m
+[32m+[m[32m    if total_lines > 0:[m
+[32m+[m[32m        error_rate = error_lines / total_lines[m
+[32m+[m[32m        if error_rate > error_threshold:[m
+[32m+[m[32m            logger.error([m
+[32m+[m[32m                "error_threshold_exceeded",[m
+[32m+[m[32m                error_rate=error_rate,[m
+[32m+[m[32m                threshold=error_threshold,[m
+[32m+[m[32m                total_lines=total_lines,[m
+[32m+[m[32m                error_lines=error_lines,[m
+[32m+[m[32m            )[m
+[32m+[m[32m            raise ValueError([m
+[32m+[m[32m                f"Error rate {error_rate:.2%} exceeds threshold {error_threshold:.2%}"[m
+[32m+[m[32m            )[m
+[32m+[m
+[32m+[m[32m    logger.info([m
+[32m+[m[32m        "parse_complete",[m
+[32m+[m[32m        total_lines=total_lines,[m
+[32m+[m[32m        error_lines=error_lines,[m
+[32m+[m[32m        success_rate=1 - (error_lines / total_lines if total_lines > 0 else 0),[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef calculate_statistics(log_entries: List[Dict]) -> Dict[str, Dict]:[m
+[32m+[m[32m    """Расчет статистики по URL"""[m
+[32m+[m[32m    url_stats = defaultdict(lambda: {"count": 0, "time_sum": 0.0, "time_list": []})[m
+[32m+[m
+[32m+[m[32m    total_count = 0[m
+[32m+[m[32m    total_time = 0.0[m
+[32m+[m
+[32m+[m[32m    for entry in log_entries:[m
+[32m+[m[32m        url = entry["url"][m
+[32m+[m[32m        request_time = entry["request_time"][m
+[32m+[m
+[32m+[m[32m        url_stats[url]["count"] += 1[m
+[32m+[m[32m        url_stats[url]["time_sum"] += request_time[m
+[32m+[m[32m        url_stats[url]["time_list"].append(request_time)[m
+[32m+[m
+[32m+[m[32m        total_count += 1[m
+[32m+[m[32m        total_time += request_time[m
+[32m+[m
+[32m+[m[32m    # Вычисляем финальные метрики[m
+[32m+[m[32m    result = {}[m
+[32m+[m[32m    for url, stats in url_stats.items():[m
+[32m+[m[32m        time_list = stats["time_list"][m
+[32m+[m[32m        result[url] = {[m
+[32m+[m[32m            "count": stats["count"],[m
+[32m+[m[32m            "count_perc": round(stats["count"] / total_count * 100, 2)[m
+[32m+[m[32m            if total_count > 0[m
+[32m+[m[32m            else 0,[m
+[32m+[m[32m            "time_sum": round(stats["time_sum"], 3),[m
+[32m+[m[32m            "time_perc": round(stats["time_sum"] / total_time * 100, 2)[m
+[32m+[m[32m            if total_time > 0[m
+[32m+[m[32m            else 0,[m
+[32m+[m[32m            "time_avg": round(stats["time_sum"] / stats["count"], 3)[m
+[32m+[m[32m            if stats["count"] > 0[m
+[32m+[m[32m            else 0,[m
+[32m+[m[32m            "time_max": round(max(time_list), 3) if time_list else 0,[m
+[32m+[m[32m            "time_med": round(statistics.median(time_list), 3) if time_list else 0,[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m    return result[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef generate_report([m
+[32m+[m[32m    stats: Dict[str, Dict], report_size: int, template_path: str, output_path: str[m
+[32m+[m[32m) -> None:[m
+[32m+[m[32m    """Генерация HTML отчета"""[m
+[32m+[m[32m    logger = structlog.get_logger()[m
+[32m+[m
+[32m+[m[32m    # Сортировка по time_sum и ограничение размера[m
+[32m+[m[32m    sorted_urls = sorted(stats.items(), key=lambda x: x[1]["time_sum"], reverse=True)[[m
+[32m+[m[32m        :report_size[m
+[32m+[m[32m    ][m
+[32m+[m
+[32m+[m[32m    # Подготовка данных для шаблона[m
+[32m+[m[32m    table_data = [][m
+[32m+[m[32m    for url, url_stats in sorted_urls:[m
+[32m+[m[32m        table_data.append({"url": url, **url_stats})[m
+[32m+[m
+[32m+[m[32m    # Чтение шаблона[m
+[32m+[m[32m    with open(template_path, "r", encoding="utf-8") as f:[m
+[32m+[m[32m        template_content = f.read()[m
+[32m+[m
+[32m+[m[32m    # Замена $table_json в шаблоне[m
+[32m+[m[32m    template = Template(template_content)[m
+[32m+[m[32m    report_content = template.safe_substitute(table_json=json.dumps(table_data))[m
+[32m+[m
+[32m+[m[32m    # Сохранение отчета[m
+[32m+[m[32m    os.makedirs(os.path.dirname(output_path), exist_ok=True)[m
+[32m+[m[32m    with open(output_path, "w", encoding="utf-8") as f:[m
+[32m+[m[32m        f.write(report_content)[m
+[32m+[m
+[32m+[m[32m    logger.info("report_generated", path=output_path)[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef check_report_exists(report_path: str) -> bool:[m
+[32m+[m[32m    """Проверка существования отчета"""[m
+[32m+[m[32m    return os.path.exists(report_path)[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef main():[m
+[32m+[m[32m    """Главная функция"""[m
+[32m+[m[32m    parser = argparse.ArgumentParser(description="Nginx log analyzer")[m
+[32m+[m[32m    parser.add_argument("--config", default="config.json", help="Path to config file")[m
+[32m+[m[32m    args = parser.parse_args()[m
+[32m+[m
+[32m+[m[32m    # Настройка логирования[m
+[32m+[m[32m    setup_logging()[m
+[32m+[m[32m    logger = structlog.get_logger()[m
+[32m+[m
+[32m+[m[32m    try:[m
+[32m+[m[32m        # Загрузка конфигурации[m
+[32m+[m[32m        config = load_config(args.config)[m
+[32m+[m[32m        logger.info("config_loaded", config_path=args.config)[m
+[32m+[m
+[32m+[m[32m        # Настройка логирования с учетом конфига[m
+[32m+[m[32m        if config.get("LOG_FILE"):[m
+[32m+[m[32m            setup_logging(config["LOG_FILE"])[m
+[32m+[m
+[32m+[m[32m        # Поиск последнего лога[m
+[32m+[m[32m        latest_log = find_latest
