@@ -11,9 +11,10 @@ import statistics
 import sys
 from collections import defaultdict, namedtuple
 from datetime import datetime
-from pathlib import Path
+
+# from pathlib import Path
 from string import Template
-from typing import Dict, Iterator, List, Optional, Tuple, Union
+from typing import Dict, Iterator, List, Optional  # Tuple, Union
 
 import structlog
 
@@ -224,16 +225,18 @@ def calculate_statistics(log_entries: List[Dict]) -> Dict[str, Dict]:
         time_list = stats["time_list"]
         result[url] = {
             "count": stats["count"],
-            "count_perc": round(stats["count"] / total_count * 100, 2)
-            if total_count > 0
-            else 0,
+            "count_perc": (
+                round(stats["count"] / total_count * 100, 2) if total_count > 0 else 0
+            ),
             "time_sum": round(stats["time_sum"], 3),
-            "time_perc": round(stats["time_sum"] / total_time * 100, 2)
-            if total_time > 0
-            else 0,
-            "time_avg": round(stats["time_sum"] / stats["count"], 3)
-            if stats["count"] > 0
-            else 0,
+            "time_perc": (
+                round(stats["time_sum"] / total_time * 100, 2) if total_time > 0 else 0
+            ),
+            "time_avg": (
+                round(stats["time_sum"] / stats["count"], 3)
+                if stats["count"] > 0
+                else 0
+            ),
             "time_max": round(max(time_list), 3) if time_list else 0,
             "time_med": round(statistics.median(time_list), 3) if time_list else 0,
         }

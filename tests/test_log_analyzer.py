@@ -16,7 +16,7 @@ from log_analyzer.log_analyzer import (
 
 
 class TestConfig:
-    def test_load_config_default(self):
+    def test_load_config_default(self) -> None:
         """Тест загрузки конфига с дефолтными значениями"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump({}, f)
@@ -29,7 +29,7 @@ class TestConfig:
         finally:
             os.unlink(config_path)
 
-    def test_load_config_override(self):
+    def test_load_config_override(self) -> None:
         """Тест перезаписи дефолтных значений"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump({"REPORT_SIZE": 500}, f)
@@ -42,14 +42,14 @@ class TestConfig:
         finally:
             os.unlink(config_path)
 
-    def test_load_config_not_found(self):
+    def test_load_config_not_found(self) -> None:
         """Тест отсутствующего конфига"""
         with pytest.raises(FileNotFoundError):
             load_config("/non/existent/config.json")
 
 
 class TestLogParsing:
-    def test_parse_valid_line(self):
+    def test_parse_valid_line(self) -> None:
         """Тест парсинга корректной строки"""
         line = (
             "1.196.116.32 -  - [29/Jun/2017:03:50:22 +0300] "
@@ -63,7 +63,7 @@ class TestLogParsing:
         assert result["url"] == "/api/v2/banner/25019354"
         assert result["request_time"] == 0.390
 
-    def test_parse_invalid_line(self):
+    def test_parse_invalid_line(self) -> None:
         """Тест парсинга некорректной строки"""
         line = "invalid log line"
         result = parse_log_line(line)
@@ -71,7 +71,7 @@ class TestLogParsing:
 
 
 class TestLogFinder:
-    def test_find_latest_log(self):
+    def test_find_latest_log(self) -> None:
         """Тест поиска последнего лога"""
         with tempfile.TemporaryDirectory() as tmpdir:
             # Создаем файлы логов
@@ -85,7 +85,7 @@ class TestLogFinder:
             assert result.date == datetime(2017, 7, 1)
             assert result.path.endswith("nginx-access-ui.log-20170701.gz")
 
-    def test_find_latest_log_empty_dir(self):
+    def test_find_latest_log_empty_dir(self) -> None:
         """Тест поиска в пустой директории"""
         with tempfile.TemporaryDirectory() as tmpdir:
             result = find_latest_log(tmpdir)
@@ -93,7 +93,7 @@ class TestLogFinder:
 
 
 class TestStatistics:
-    def test_calculate_statistics(self):
+    def test_calculate_statistics(self) -> None:
         """Тест расчета статистики"""
         log_entries = [
             {"url": "/api/v2/banner/1", "request_time": 0.1},
@@ -112,7 +112,7 @@ class TestStatistics:
 
 
 class TestReportCheck:
-    def test_check_report_exists(self):
+    def test_check_report_exists(self) -> None:
         """Тест проверки существования отчета"""
         with tempfile.NamedTemporaryFile() as f:
             assert check_report_exists(f.name) is True
