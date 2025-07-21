@@ -281,7 +281,7 @@ def check_report_exists(report_path: str) -> bool:
     return os.path.exists(report_path)
 
 
-def main():
+def main() -> int:
     """Главная функция"""
     parser = argparse.ArgumentParser(description="Nginx log analyzer")
     parser.add_argument("--config", default="config.json", help="Path to config file")
