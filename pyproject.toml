@@ -1,5 +1,6 @@
 [project]
 name = "log_analyzer"
+packages = [{include = "log_analyzer", from = "src"}]
 version = "0.1.0"
 description = "Nginx log analyzer for OTUS Python Professional course"
 readme = "README.md"
@@ -39,10 +40,6 @@ python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
-
-[tool.ruff]
-line-length = 88
-select = ["E", "F", "W", "I", "N"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

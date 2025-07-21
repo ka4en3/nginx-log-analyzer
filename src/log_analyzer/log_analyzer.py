@@ -14,7 +14,7 @@ from datetime import datetime
 
 # from pathlib import Path
 from string import Template
-from typing import Dict, Iterator, List, Optional  # Tuple, Union
+from typing import Dict, Iterator, List, Optional
 
 import structlog
 
@@ -23,7 +23,7 @@ default_config = {
     "REPORT_SIZE": 1000,
     "REPORT_DIR": "./reports",
     "LOG_DIR": "./logs",
-    "LOG_FILE": None,
+    "LOG_FILE": "./logs/script_log.json",
     "ERROR_THRESHOLD": 0.1,  # 10% ошибок
 }
 
@@ -72,7 +72,9 @@ def setup_logging(log_file: Optional[str] = None) -> None:
 
     # Настройка стандартного логгера
     if log_file:
-        logging.basicConfig(filename=log_file, level=logging.INFO, format="%(message)s")
+        logging.basicConfig(
+            filename=log_file, level=logging.INFO, format="%(message)s", force=True
+        )
     else:
         logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
 
@@ -81,8 +83,11 @@ def load_config(config_path: str) -> Dict:
     """Загрузка и слияние конфигурации"""
     config = default_config.copy()
 
+    logger = structlog.get_logger()
+
     if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
+        logger.info(f"Config file not found: {config_path}, using default config")
+        return config
 
     try:
         with open(config_path, "r", encoding="utf-8") as f:
@@ -91,6 +96,7 @@ def load_config(config_path: str) -> Dict:
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON in config file: {e}")
 
+    logger.info("config_loaded", config_path=config_path)
     return config
 
 
@@ -294,10 +300,11 @@ def main() -> int:
     try:
         # Загрузка конфигурации
         config = load_config(args.config)
-        logger.info("config_loaded", config_path=args.config)
+        # logger.info("config_loaded", config_path=args.config)
 
         # Настройка логирования с учетом конфига
         if config.get("LOG_FILE"):
+            logger.info("logging_to_file", file=config["LOG_FILE"])
             setup_logging(config["LOG_FILE"])
 
         # Поиск последнего лога
