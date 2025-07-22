@@ -11,8 +11,6 @@ import statistics
 import sys
 from collections import defaultdict, namedtuple
 from datetime import datetime
-
-# from pathlib import Path
 from string import Template
 from typing import Dict, Iterator, List, Optional
 
@@ -23,9 +21,9 @@ default_config = {
     "REPORT_SIZE": 1000,
     "REPORT_DIR": "./reports",
     "LOG_DIR": "./logs",
-    "LOG_FILE": "./logs/script_log.json",
     "ERROR_THRESHOLD": 0.1,  # 10% ошибок
 }
+default_config_path = "config.json"
 
 # Структура для информации о файле лога
 LogFileInfo = namedtuple("LogFileInfo", ["path", "date", "extension"])
@@ -79,9 +77,9 @@ def setup_logging(log_file: Optional[str] = None) -> None:
         logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
 
 
-def load_config(config_path: str) -> Dict:
+def load_config(config_path: str, default: Dict) -> Dict:
     """Загрузка и слияние конфигурации"""
-    config = default_config.copy()
+    config = default.copy()
 
     logger = structlog.get_logger()
 
@@ -290,7 +288,9 @@ def check_report_exists(report_path: str) -> bool:
 def main() -> int:
     """Главная функция"""
     parser = argparse.ArgumentParser(description="Nginx log analyzer")
-    parser.add_argument("--config", default="config.json", help="Path to config file")
+    parser.add_argument(
+        "--config", default=default_config_path, help="Path to config file"
+    )
     args = parser.parse_args()
 
     # Настройка логирования
@@ -299,8 +299,7 @@ def main() -> int:
 
     try:
         # Загрузка конфигурации
-        config = load_config(args.config)
-        # logger.info("config_loaded", config_path=args.config)
+        config = load_config(args.config, default_config)
 
         # Настройка логирования с учетом конфига
         if config.get("LOG_FILE"):

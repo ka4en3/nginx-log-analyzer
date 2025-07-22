@@ -4,11 +4,10 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-import pytest
-
 from log_analyzer.log_analyzer import (
     calculate_statistics,
     check_report_exists,
+    default_config,
     find_latest_log,
     load_config,
     parse_log_line,
@@ -23,9 +22,9 @@ class TestConfig:
             config_path = f.name
 
         try:
-            config = load_config(config_path)
-            assert config["REPORT_SIZE"] == 1000
-            assert config["ERROR_THRESHOLD"] == 0.1
+            config = load_config(config_path, default_config)
+            assert config["REPORT_SIZE"] == default_config["REPORT_SIZE"]
+            assert config["ERROR_THRESHOLD"] == default_config["ERROR_THRESHOLD"]
         finally:
             os.unlink(config_path)
 
@@ -36,16 +35,20 @@ class TestConfig:
             config_path = f.name
 
         try:
-            config = load_config(config_path)
+            config = load_config(config_path, default_config)
             assert config["REPORT_SIZE"] == 500
-            assert config["ERROR_THRESHOLD"] == 0.1  # дефолтное значение
+            assert (
+                config["ERROR_THRESHOLD"] == default_config["ERROR_THRESHOLD"]
+            )  # дефолтное значение
         finally:
             os.unlink(config_path)
 
     def test_load_config_not_found(self) -> None:
         """Тест отсутствующего конфига"""
-        with pytest.raises(FileNotFoundError):
-            load_config("/non/existent/config.json")
+        config_path = "/non/existent/config.json"
+        config = load_config(config_path, default_config)
+        assert config["REPORT_SIZE"] == default_config["REPORT_SIZE"]
+        assert config["ERROR_THRESHOLD"] == default_config["ERROR_THRESHOLD"]
 
 
 class TestLogParsing:
