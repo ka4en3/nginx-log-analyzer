@@ -21,7 +21,7 @@ default_config = {
     "REPORT_SIZE": 1000,
     "REPORT_DIR": "./reports",
     "LOG_DIR": "./logs",
-    "ERROR_THRESHOLD": 0.1,  # 10% ошибок
+    "ERROR_THRESHOLD": 0.1,  # 10% mistakes
 }
 default_config_path = "config.json"
 
