@@ -4,7 +4,7 @@ packages = [{include = "log_analyzer", from = "src"}]
 version = "0.1.0"
 description = "Nginx log analyzer for OTUS Python Professional course"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
     "structlog>=24.1.0",
 ]
@@ -29,14 +29,14 @@ build-backend = "hatchling.build"
 
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py310']
 
 [tool.isort]
 profile = "black"
 line_length = 88
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

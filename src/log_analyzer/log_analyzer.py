@@ -12,7 +12,7 @@ import sys
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from string import Template
-from typing import Dict, Iterator, List, Optional
+from typing import Dict, Iterator, List, Optional, Protocol, TextIO, cast
 
 import structlog
 
@@ -144,16 +144,23 @@ def parse_log_line(line: str) -> Optional[Dict]:
     return {"url": url, "request_time": float(data["request_time"])}
 
 
+# Define a Protocol for file openers to handle both open and gzip.open
+class FileOpener(Protocol):
+    def __call__(self, file: str, mode: str, encoding: Optional[str] = None) -> TextIO:
+        ...
+
+
 def parse_log_file(file_path: str, error_threshold: float) -> Iterator[Dict]:
     """Генератор для парсинга файла логов"""
     logger = structlog.get_logger()
 
     # Выбираем способ открытия файла
+    file_opener: FileOpener
     if file_path.endswith(".gz"):
-        file_opener = gzip.open
+        file_opener = cast(FileOpener, gzip.open)
         mode = "rt"
     else:
-        file_opener = open
+        file_opener = cast(FileOpener, open)
         mode = "r"
 
     total_lines = 0
@@ -207,7 +214,11 @@ def parse_log_file(file_path: str, error_threshold: float) -> Iterator[Dict]:
 
 def calculate_statistics(log_entries: List[Dict]) -> Dict[str, Dict]:
     """Расчет статистики по URL"""
-    url_stats = defaultdict(lambda: {"count": 0, "time_sum": 0.0, "time_list": []})
+
+    def create_stats_dict() -> dict:
+        return {"count": 0, "time_sum": 0.0, "time_list": []}
+
+    url_stats: dict = defaultdict(create_stats_dict)
 
     total_count = 0
     total_time = 0.0

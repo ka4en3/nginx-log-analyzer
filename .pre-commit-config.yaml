@@ -32,10 +32,6 @@ repos:
         additional_dependencies: [structlog]
         args:
           - --ignore-missing-imports
-          - --disable-error-code=assignment
-          - --disable-error-code=arg-type
-          - --disable-error-code=var-annotated
-          - --disable-error-code=operator
-          - --disable-error-code=call-overload
           - --disable-error-code=attr-defined
-          - --disable-error-code=no-untyped-def
+          - --disable-error-code=import-untyped
+          - --disable-error-code=arg-type
