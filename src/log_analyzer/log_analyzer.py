@@ -16,7 +16,7 @@ from typing import Dict, Iterator, List, Optional, Protocol, TextIO, cast
 
 import structlog
 
-# Настройка дефолтного конфига
+# Setting up the default config
 default_config = {
     "REPORT_SIZE": 1000,
     "REPORT_DIR": "./reports",
@@ -25,10 +25,10 @@ default_config = {
 }
 default_config_path = "config.json"
 
-# Структура для информации о файле лога
+# Structure for log file information
 LogFileInfo = namedtuple("LogFileInfo", ["path", "date", "extension"])
 
-# Паттерн для парсинга логов ui_short
+# Pattern for parsing logs ui_short
 LOG_PATTERN = re.compile(
     r"(?P<remote_addr>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) "
     r"(?P<remote_user>\S+) +(?P<http_x_real_ip>\S+) +\[(?P<time_local>[^\]]+)\] "
@@ -43,12 +43,12 @@ LOG_PATTERN = re.compile(
     r"(?P<request_time>\d+\.\d+)"
 )
 
-# Паттерн для поиска файлов логов
+# Pattern for searching log files
 LOG_FILE_PATTERN = re.compile(r"nginx-access-ui\.log-(\d{8})(\.gz)?$")
 
 
 def setup_logging(log_file: Optional[str] = None) -> None:
-    """Настройка структурированного логирования"""
+    """Configuring structured logging"""
 
     processors = [
         structlog.stdlib.filter_by_level,
@@ -68,7 +68,7 @@ def setup_logging(log_file: Optional[str] = None) -> None:
         cache_logger_on_first_use=True,
     )
 
-    # Настройка стандартного логгера
+    # Setting up a standard logger
     if log_file:
         logging.basicConfig(
             filename=log_file, level=logging.INFO, format="%(message)s", force=True
@@ -78,7 +78,7 @@ def setup_logging(log_file: Optional[str] = None) -> None:
 
 
 def load_config(config_path: str, default: Dict) -> Dict:
-    """Загрузка и слияние конфигурации"""
+    """Loading and merging configuration"""
     config = default.copy()
 
     logger = structlog.get_logger()
@@ -99,7 +99,7 @@ def load_config(config_path: str, default: Dict) -> Dict:
 
 
 def find_latest_log(log_dir: str) -> Optional[LogFileInfo]:
-    """Поиск последнего лога по дате в имени файла"""
+    """Search for latest log by date in file name"""
     if not os.path.exists(log_dir):
         return None
 
@@ -127,14 +127,14 @@ def find_latest_log(log_dir: str) -> Optional[LogFileInfo]:
 
 
 def parse_log_line(line: str) -> Optional[Dict]:
-    """Парсинг одной строки лога"""
+    """Parsing one line of log"""
     match = LOG_PATTERN.match(line.strip())
     if not match:
         return None
 
     data = match.groupdict()
 
-    # Извлекаем URL из request
+    # Extract URL from request
     request_parts = data["request"].split()
     if len(request_parts) >= 2:
         url = request_parts[1]
@@ -151,10 +151,10 @@ class FileOpener(Protocol):
 
 
 def parse_log_file(file_path: str, error_threshold: float) -> Iterator[Dict]:
-    """Генератор для парсинга файла логов"""
+    """Log file parsing generator"""
     logger = structlog.get_logger()
 
-    # Выбираем способ открытия файла
+    # Select the method for opening the file
     file_opener: FileOpener
     if file_path.endswith(".gz"):
         file_opener = cast(FileOpener, gzip.open)
@@ -177,7 +177,7 @@ def parse_log_file(file_path: str, error_threshold: float) -> Iterator[Dict]:
                 else:
                     error_lines += 1
 
-                # Периодическое логирование прогресса
+                # Periodic logging of progress
                 if total_lines % 100000 == 0:
                     logger.info(
                         "parse_progress",
@@ -189,7 +189,7 @@ def parse_log_file(file_path: str, error_threshold: float) -> Iterator[Dict]:
         logger.error("parse_error", error=str(e), file=file_path)
         raise
 
-    # Проверка порога ошибок
+    # Error threshold check
     if total_lines > 0:
         error_rate = error_lines / total_lines
         if error_rate > error_threshold:
@@ -213,7 +213,7 @@ def parse_log_file(file_path: str, error_threshold: float) -> Iterator[Dict]:
 
 
 def calculate_statistics(log_entries: List[Dict]) -> Dict[str, Dict]:
-    """Расчет статистики по URL"""
+    """Calculating statistics by URL"""
 
     def create_stats_dict() -> dict:
         return {"count": 0, "time_sum": 0.0, "time_list": []}
@@ -234,7 +234,7 @@ def calculate_statistics(log_entries: List[Dict]) -> Dict[str, Dict]:
         total_count += 1
         total_time += request_time
 
-    # Вычисляем финальные метрики
+    # Calculate final metrics
     result = {}
     for url, stats in url_stats.items():
         time_list = stats["time_list"]
@@ -262,28 +262,28 @@ def calculate_statistics(log_entries: List[Dict]) -> Dict[str, Dict]:
 def generate_report(
     stats: Dict[str, Dict], report_size: int, template_path: str, output_path: str
 ) -> None:
-    """Генерация HTML отчета"""
+    """Generating HTML report"""
     logger = structlog.get_logger()
 
-    # Сортировка по time_sum и ограничение размера
+    # Sort by time_sum and size limit
     sorted_urls = sorted(stats.items(), key=lambda x: x[1]["time_sum"], reverse=True)[
         :report_size
     ]
 
-    # Подготовка данных для шаблона
+    # Preparing data for the template
     table_data = []
     for url, url_stats in sorted_urls:
         table_data.append({"url": url, **url_stats})
 
-    # Чтение шаблона
+    # Reading template
     with open(template_path, "r", encoding="utf-8") as f:
         template_content = f.read()
 
-    # Замена $table_json в шаблоне
+    # Replace $table_json in template
     template = Template(template_content)
     report_content = template.safe_substitute(table_json=json.dumps(table_data))
 
-    # Сохранение отчета
+    # Saving the report
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(report_content)
@@ -292,32 +292,32 @@ def generate_report(
 
 
 def check_report_exists(report_path: str) -> bool:
-    """Проверка существования отчета"""
+    """Checking for report existence"""
     return os.path.exists(report_path)
 
 
 def main() -> int:
-    """Главная функция"""
+    """Main function"""
     parser = argparse.ArgumentParser(description="Nginx log analyzer")
     parser.add_argument(
         "--config", default=default_config_path, help="Path to config file"
     )
     args = parser.parse_args()
 
-    # Настройка логирования
+    # Setup logging
     setup_logging()
     logger = structlog.get_logger()
 
     try:
-        # Загрузка конфигурации
+        # Config loading
         config = load_config(args.config, default_config)
 
-        # Настройка логирования с учетом конфига
+        # Setting up logging based on the config
         if config.get("LOG_FILE"):
             logger.info("logging_to_file", file=config["LOG_FILE"])
             setup_logging(config["LOG_FILE"])
 
-        # Поиск последнего лога
+        # Searching for the latest log
         latest_log = find_latest_log(config["LOG_DIR"])
         if not latest_log:
             logger.info("no_logs_found", log_dir=config["LOG_DIR"])
@@ -329,24 +329,24 @@ def main() -> int:
             date=latest_log.date.strftime("%Y-%m-%d"),
         )
 
-        # Формирование пути к отчету
+        # Forming report filename
         report_filename = f"report-{latest_log.date.strftime('%Y.%m.%d')}.html"
         report_path = os.path.join(config["REPORT_DIR"], report_filename)
 
-        # Проверка существования отчета
+        # Checking for report existence
         if check_report_exists(report_path):
             logger.info("report_already_exists", path=report_path)
             return 0
 
-        # Парсинг лога
+        # Parsing the log
         logger.info("parsing_started", file=latest_log.path)
         log_entries = list(parse_log_file(latest_log.path, config["ERROR_THRESHOLD"]))
 
-        # Расчет статистики
+        # Calculating statistics
         logger.info("calculating_statistics", entries_count=len(log_entries))
         stats = calculate_statistics(log_entries)
 
-        # Генерация отчета
+        # Rendering the report
         template_path = os.path.join("templates", "report.html")
         generate_report(stats, config["REPORT_SIZE"], template_path, report_path)
 
