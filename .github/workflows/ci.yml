@@ -32,7 +32,7 @@ jobs:
     - name: Run black check
       run: |
         source .venv/bin/activate
-        black --check src/ tests/
+        black --check --line-length 88 src/ tests/
 
     - name: Run isort check
       run: |
