@@ -30,8 +30,8 @@ repos:
       - id: mypy
         # additional_dependencies: [types-all]
         additional_dependencies: [structlog]
-        args:
-          - --ignore-missing-imports
-          - --disable-error-code=attr-defined
-          - --disable-error-code=import-untyped
-          - --disable-error-code=arg-type
+#        args:
+#          - --ignore-missing-imports
+#          - --disable-error-code=attr-defined
+#          - --disable-error-code=import-untyped
+#          - --disable-error-code=arg-type
