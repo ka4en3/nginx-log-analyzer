@@ -146,9 +146,8 @@ def parse_log_line(line: str) -> Optional[Dict]:
 
 # Define a Protocol for file openers to handle both open and gzip.open
 class FileOpener(Protocol):
-    def __call__(
-        self, file: str, mode: str, encoding: Optional[str] = None
-    ) -> TextIO: ...
+    def __call__(self, file: str, mode: str, encoding: Optional[str] = None) -> TextIO:
+        ...
 
 
 def parse_log_file(file_path: str, error_threshold: float) -> Iterator[Dict]:

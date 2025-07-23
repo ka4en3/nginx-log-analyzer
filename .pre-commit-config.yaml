@@ -7,10 +7,11 @@ repos:
       - id: check-yaml
       - id: check-json
 
-#  - repo: https://github.com/psf/black
-#    rev: 23.12.1
-#    hooks:
-#      - id: black
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        args: ["--line-length=88"]
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
@@ -28,10 +29,4 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        # additional_dependencies: [types-all]
         additional_dependencies: [structlog]
-#        args:
-#          - --ignore-missing-imports
-#          - --disable-error-code=attr-defined
-#          - --disable-error-code=import-untyped
-#          - --disable-error-code=arg-type
